@@ -1,56 +1,46 @@
-# Welcome to your Expo app 👋
+# Firefly Path
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+"Watch the fireflies light a path. Then draw the same path with your finger."
 
-## Get started
+The full spec is in [Firefly_Path_Game_Build_Prompt.md](Firefly_Path_Game_Build_Prompt.md). §5.1 lists the rules that keep the game playable on low-end phones.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start          # then press w (web), i (iOS) or a (Android)
+npm test                # game rules, all 300 level paths, touch handling, quality tiers
+npm run typecheck
+npx expo lint
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Try the budget-phone graphics on any device:
 
-### Other setup steps
+```bash
+EXPO_PUBLIC_QUALITY=low npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Phase 1 runs in Expo Go. From phase 4 (MMKV) and phase 5 (AdMob) on it needs a development build: `npx expo run:android` / `npx expo run:ios`, or `eas build --profile development`.
 
-## Learn more
+## Layout
 
-To learn more about developing your project with Expo, look at the following resources:
+| Folder | What's in it |
+|---|---|
+| `src/app` | Screens (Expo Router): home, `game/[level]` |
+| `src/game` | Plain TypeScript: seeded path generator, level table, round rules, touch-to-tile maths |
+| `src/render` | Board, tiles, firefly (Reanimated views, no Skia) |
+| `src/screens` | Game screen and win/fail card |
+| `src/perf` | Device quality tier for low-end phones |
+| `src/ads` | AdManager (a stand-in that grants rewards at once until phase 5) |
+| `src/store` | Progress (in memory until phase 4) |
+| `tests` | Jest tests |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Build phases
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [x] 1. Playable core: grid, firefly show, finger drawing, correct/wrong, 3 hearts, win/fail
+- [ ] 2. Levels: relax/boss levels, rocks, path crossing, two fireflies (the 300-level difficulty table is already in)
+- [ ] 3. Feel
+- [ ] 4. Progress
+- [ ] 5. AdMob
+- [ ] 6. Extras
+- [ ] 7. Release
