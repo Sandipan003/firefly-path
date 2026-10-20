@@ -38,14 +38,30 @@
         }
       ],
       [
+        "expo-font",
+        {
+          "android": {
+            "fonts": [
+              "./node_modules/@expo-google-fonts/fraunces/600SemiBold/Fraunces_600SemiBold.ttf",
+              "./node_modules/@expo-google-fonts/fraunces/600SemiBold_Italic/Fraunces_600SemiBold_Italic.ttf",
+              "./node_modules/@expo-google-fonts/baloo-2/600SemiBold/Baloo2_600SemiBold.ttf",
+              "./node_modules/@expo-google-fonts/baloo-2/800ExtraBold/Baloo2_800ExtraBold.ttf"
+            ]
+          }
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
             "enableMinifyInReleaseBuilds": true,
-            "enableShrinkResourcesInReleaseBuilds": true
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# The AdMob SDK brings WorkManager 2.7 / Room 2.2, which create their database class by reflection.\n# R8 full mode would strip its constructor and crash the app at launch, so keep it.\n-keep class * extends androidx.room.RoomDatabase { <init>(); }"
           }
         }
-      ]
+      ],
+      "react-native-google-mobile-ads",
+      "expo-tracking-transparency"
     ],
     "experiments": {
       "typedRoutes": true,

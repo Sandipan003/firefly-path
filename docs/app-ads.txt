@@ -1,0 +1,5 @@
+# Put this file at the root of the website listed in your Play Store entry:
+# https://your-website.example/app-ads.txt
+# Replace the publisher ID with yours: it's the number in your AdMob app ID
+# (ca-app-pub-XXXXXXXXXXXXXXXX~...), written as pub-XXXXXXXXXXXXXXXX.
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

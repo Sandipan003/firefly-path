@@ -53,15 +53,15 @@ Difficulty only grows in ways the player can *see* instantly. No new rules, ever
 |---|---|---|
 | 1–10 | 3×3 grid, path of 3–5 tiles, slow firefly | "Easy" |
 | 11–30 | 4×4 grid, path 5–8 tiles | "Medium" + "Grid Up! 3×3 ▶ 4×4" card |
-| 31–60 | 5×5, path 7–11 tiles, firefly a bit faster | "Hard" |
-| 61–100 | 6×6, path 10–14 tiles, path can cross itself | "Expert" |
-| 100+ | 7×7, longer paths, faster firefly | "Genius" |
+| 31–60 | 5×5, path 8–11 tiles, firefly a bit faster | "Hard" |
+| 61–100 | 6×6, path 11–14 tiles, path can cross itself | "Expert" |
+| 100+ | 7×7, path 14–20 tiles, faster firefly, two fireflies from 120 | "Genius" |
 
 Small visual twists added rarely (one at a time, each shown with a single picture card, no text needed):
 - **Rock tiles** 🪨 — just decoration-blockers the path never uses (makes the board look different, no rule to learn).
 - **Two fireflies** (level 120+) — a yellow path and a blue path; draw yellow first, then blue. Colour-coded so it's obvious.
 
-Pacing: every 5th level is an easy "relax" level; every 10th level is a "Boss" with a gold frame and extra coins.
+**Every level is a little harder than the one before, never easier:** the firefly flies a little faster (720 ms per tile at level 1, easing towards 420 ms) and the full path shows a little shorter; the path never gets shorter and grows a tile every few levels (each grid starts where the last one ended); at the same length, paths turn more often (turns are what make a path hard to remember); crossings and the second firefly stay once introduced; rocks become more common. Every 10th level is a "Boss" with a gold frame and extra coins. (This replaces the original "relax level every 5th level".)
 
 **Fairness rule:** paths are random but always smooth (no jumping across the board), always connected tile-to-tile (up/down/left/right only), and never longer than the difficulty table allows. Use a seeded random generator so levels are the same for every player and can be tested.
 
@@ -115,6 +115,17 @@ Target: budget Android phones (1–3 GB RAM, Android Go, Android 7.0 / API 24 an
 - **Respect "Reduce motion"** in system settings.
 - **Test every phase** on a real 2 GB Android phone, or an Android emulator with 2 GB RAM on API 24, with "Profile GPU rendering" on. Aim for 60 fps and never drop below 30 fps on the low tier.
 
+### 5.2 Visual direction — "a storybook that glows"
+
+Typography-led, illustration-heavy, and both maximal and minimal: the board stays calm and clean, while the story, chapter cards and wins get the big type, illustrations and particles. Ideas are borrowed from web motion libraries (react-bits split-text and count-up, aceternity glows, GSAP-style staggers, Vanta-style ambient scenes), rebuilt natively with Reanimated and SVG. Web libraries themselves can't run in the app.
+
+- **Type:** Fraunces (a soft storybook serif) for big moments: the giant level number, chapter titles, story captions, card headlines. Baloo 2 for UI text; it also covers Hindi. Small letter-spaced capitals ("CHAPTER II", "LEVEL") sit above big type. Import single font weights by path, never the package root.
+- **Story on first launch** (`/story`, skippable, replayable from the home screen): night falls, fireflies light Pip's way home, the wind scatters them, "Watch where they glow… then lead Pip home." Captions rise in letter by letter.
+- **Story through the game:** each difficulty band is a chapter with its own landscape: I The Meadow, II The Whispering Wood, III The Silver River, IV The Moon Mountains, V The Starry Sky (where Pip's house sits on a cloud). Each chapter opens with a title card, which also carries Grid Up.
+- **Illustrations are code** (`/src/art`): Pip has six expressions and blinks; the landscapes are generated from a seed, about a dozen SVG paths each; all icons are SVG. No emoji in the UI, because they look different, or are missing, on older Android phones.
+- **Colours:** the night palette above, plus warm storybook paper (#FFF7E8) for cards and light buttons.
+- **Low tier:** same layout and type; fewer stars, no scene details or glows, no drifting fireflies, word-by-word captions instead of letter-by-letter.
+
 ---
 
 ## 6. AdMob monetization
@@ -157,7 +168,7 @@ Show this full-screen ad only at **unlock moments**, right after the celebration
 Rules: never before level 8; minimum 90 seconds between interstitials; never within 60 seconds after a rewarded ad; never during gameplay or on the fail screen; never on app launch. Preload after each show. Frequency values (min level, cooldown, fallback count) come from Firebase Remote Config so I can change them without an app update.
 
 ### 6.3 "Banner" — small, never in the way
-- Adaptive anchored banner at the **bottom of the Home screen** and the **Win/Fail screens** only.
+- Banner at the **bottom of the Home screen** and the **Win/Fail screens** only. It's the fixed 320×50 size: from SDK 17 every "anchored adaptive" banner is Google's large size (about 115–130 pt), which covers too much of a small phone and can't have its space reserved before it loads.
 - **Never on the game board screen** (protects the experience and avoids accidental taps).
 - At least 16dp gap between the banner and any button; the layout must reserve the banner height so nothing jumps when it loads.
 - Hidden for players who bought "Remove Ads".

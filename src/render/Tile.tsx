@@ -1,5 +1,5 @@
 import { memo, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import type { TileLook } from '@/game/session';
+import { LanternIcon } from '@/art/icons';
 import { quality } from '@/perf/quality';
 import { Rock } from './Rock';
 import { colors } from './theme';
@@ -26,6 +27,8 @@ interface TileProps {
   twice: boolean;
   /** Drawn as a rock instead of a tile. Only ever 'idle' or 'wrong'. */
   rock: boolean;
+  /** "Your turn": a slow, gentle pulse until the player touches the board. */
+  breathe: boolean;
 }
 
 const FILL: Record<TileLook, string> = {
@@ -53,7 +56,7 @@ const HALO: Partial<Record<TileLook, string>> = {
  * can do cheaply on the GPU; colour changes are instant.
  * memo() keeps the other tiles from re-rendering when one changes.
  */
-export const Tile = memo(function Tile({ x, y, diameter, look, shakeKey, lantern, twice, rock }: TileProps) {
+export const Tile = memo(function Tile({ x, y, diameter, look, shakeKey, lantern, twice, rock, breathe }: TileProps) {
   const scale = useSharedValue(1);
   const shakeX = useSharedValue(0);
 
@@ -61,13 +64,15 @@ export const Tile = memo(function Tile({ x, y, diameter, look, shakeKey, lantern
     cancelAnimation(scale);
     if (look === 'hint' && quality.loops) {
       scale.set(withRepeat(withSequence(withTiming(1.1, { duration: 380 }), withTiming(1, { duration: 380 })), -1));
+    } else if (breathe && quality.loops) {
+      scale.set(withRepeat(withSequence(withTiming(1.07, { duration: 750 }), withTiming(1, { duration: 750 })), -1));
     } else if (look !== 'idle') {
       scale.set(withSequence(withTiming(1.14, { duration: 90 }), withTiming(1, { duration: 160 })));
     } else {
       scale.set(1);
     }
     // `twice` is listed so the tile pops again when the path crosses it.
-  }, [look, twice, scale]);
+  }, [look, twice, breathe, scale]);
 
   useEffect(() => {
     if (shakeKey === 0) return;
@@ -126,7 +131,7 @@ export const Tile = memo(function Tile({ x, y, diameter, look, shakeKey, lantern
               ]}
             />
           ) : null}
-          {lantern ? <Text style={{ fontSize: diameter * 0.42 }}>🏮</Text> : null}
+          {lantern ? <LanternIcon size={diameter * 0.44} /> : null}
         </View>
       )}
     </Animated.View>

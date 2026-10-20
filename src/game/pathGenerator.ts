@@ -136,3 +136,15 @@ function serpentine(size: number, length: number): number[] {
   }
   return out;
 }
+
+/**
+ * How many times one firefly's path changes direction. Turns are what make a
+ * path hard to remember: a straight line of 5 is easy, a zig-zag of 5 is not.
+ */
+export function countTurns(path: readonly number[], _size: number): number {
+  let turns = 0;
+  for (let i = 1; i < path.length - 1; i++) {
+    if (path[i] - path[i - 1] !== path[i + 1] - path[i]) turns++;
+  }
+  return turns;
+}

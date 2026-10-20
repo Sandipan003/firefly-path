@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -38,8 +38,8 @@ interface BoardProps {
   fireflyMs: number;
   /** Last correct tile: carries the lantern and starts the finger line. */
   anchorCell: number | null;
-  /** Tile the "your turn" hand points at; null hides it. */
-  handCell: number | null;
+  /** "Your turn" tile: it breathes gently until the player starts. null for none. */
+  waitingCell: number | null;
   inputEnabled: boolean;
   onEnterCells: (cells: number[]) => void;
   onLift: () => void;
@@ -67,7 +67,7 @@ export function Board({
   firefly,
   fireflyMs,
   anchorCell,
-  handCell,
+  waitingCell,
   inputEnabled,
   onEnterCells,
   onLift,
@@ -171,6 +171,7 @@ export function Board({
               lantern={cell === anchorCell}
               twice={crossed[cell]}
               rock={rocks.includes(cell)}
+              breathe={cell === waitingCell}
             />
           );
         })}
@@ -191,7 +192,6 @@ export function Board({
           moveMs={fireflyMs}
         />
 
-        {handCell !== null ? <Hand x={center(handCell).x} y={center(handCell).y} diameter={diameter} /> : null}
       </View>
     </GestureDetector>
   );
@@ -290,23 +290,6 @@ function Firefly({
         />
       ) : null}
       <View style={[styles.fireflyCore, { borderRadius: dot / 2, borderColor: color }]} />
-    </Animated.View>
-  );
-}
-
-function Hand({ x, y, diameter }: { x: number; y: number; diameter: number }) {
-  const bob = useSharedValue(0);
-  useEffect(() => {
-    bob.set(withRepeat(withSequence(withTiming(-diameter * 0.14, { duration: 420 }), withTiming(0, { duration: 420 })), -1));
-    return () => cancelAnimation(bob);
-  }, [bob, diameter]);
-  const style = useAnimatedStyle(() => ({ transform: [{ translateY: bob.get() }] }));
-  const fontSize = diameter * 0.6;
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[{ position: 'absolute', left: x - fontSize * 0.1, top: y + diameter * 0.12 }, style]}>
-      <Text style={{ fontSize }}>👆</Text>
     </Animated.View>
   );
 }

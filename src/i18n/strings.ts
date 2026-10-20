@@ -1,11 +1,33 @@
 // English only for now; Hindi is added with the rest of i18n.
+// (Fraunces has no Hindi letters, so Hindi will use Baloo 2 for big type too.)
 export const strings = {
   title: 'Firefly Path',
   level: (n: number) => `Level ${n}`,
+  levelLabel: 'LEVEL',
+  chapterLabel: (numeral: string) => `CHAPTER ${numeral}`,
+  play: 'Play',
   soClose: 'So close!',
   youGot: (got: number, total: number) => `You got ${got} of ${total} 🔥`,
+  tilesLabel: 'TILES LIT',
   retry: 'Retry',
   continue: 'Continue',
   next: 'Next',
   gridUp: 'Grid Up!',
+  boss: 'BOSS',
+  won: { 3: 'Brilliant!', 2: 'Well done!', 1: 'You did it!' } as Record<1 | 2 | 3, string>,
+  noVideo: 'No video right now',
+  settings: 'Settings',
+  privacyOptions: 'Privacy options',
+  privacyOptionsNote: 'Change how ads may use your data.',
+  watchStory: 'Watch the story again',
+  testAds: 'Test ads are on',
+  skip: 'Skip',
+  begin: 'Begin',
+  story: [
+    'When night falls, the fireflies come out to play.',
+    'Every night, they light the way home for little Pip.',
+    'But tonight, the wind blew them all away.',
+    'Watch where they glow…',
+    '…then lead Pip home.',
+  ],
 };

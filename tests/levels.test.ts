@@ -5,12 +5,14 @@ import {
   CROSSING_FROM,
   firstRockLevel,
   getLevel,
+  lengthFor,
   MAX_LEVEL,
+  rockChance,
   ROCKS_FROM,
   TWO_FIREFLIES_FROM,
   type LevelConfig,
 } from '@/game/levels';
-import { generatePath } from '@/game/pathGenerator';
+import { countTurns, generatePath } from '@/game/pathGenerator';
 
 const allLevels = Array.from({ length: MAX_LEVEL }, (_, i) => getLevel(i + 1));
 
@@ -52,7 +54,7 @@ describe('level paths', () => {
 
   it.each(allLevels)('level $level crosses itself only on Expert+ levels, and cleanly', (config) => {
     const { path } = config;
-    const crossing = config.level >= CROSSING_FROM && !config.relax && config.starts.length === 1;
+    const crossing = config.level >= CROSSING_FROM && config.starts.length === 1;
     const twice = revisits(path);
     expect(twice).toHaveLength(crossing ? 1 : 0);
     for (const [cell, indices] of twice) {
@@ -100,26 +102,52 @@ describe('level paths', () => {
   });
 });
 
-describe('pacing', () => {
-  it('every 10th level is a Boss, every other 5th level is a relax level', () => {
-    for (const c of allLevels) {
-      expect(c.boss).toBe(c.level % 10 === 0);
-      expect(c.relax).toBe(c.level % 5 === 0 && c.level % 10 !== 0);
+describe('every level is harder than the one before', () => {
+  const pairs = allLevels.slice(1).map((next, i) => [allLevels[i], next] as const);
+  const features = (c: LevelConfig) => (c.starts.length === 2 ? 2 : revisits(c.path).length > 0 ? 1 : 0);
+  const turns = (c: LevelConfig) => pieces(c).reduce((sum, p) => sum + countTurns(p, c.size), 0);
+
+  it('the firefly is always a little faster, and the full path shows a little shorter', () => {
+    for (const [a, b] of pairs) {
+      expect(b.stepMs).toBeLessThan(a.stepMs);
+      expect(b.holdMs).toBeLessThan(a.holdMs);
     }
-    expect(getLevel(5).relax).toBe(true);
-    expect(getLevel(10)).toMatchObject({ boss: true, relax: false });
+    expect(getLevel(1).stepMs).toBe(720);
+    expect(getLevel(MAX_LEVEL).stepMs).toBeGreaterThan(420);
   });
 
-  it('relax levels have the shortest path of their band and a slower firefly', () => {
-    for (const c of allLevels) {
-      const band = bandFor(c.level);
-      if (c.relax) {
-        expect(c.path).toHaveLength(band.minLength);
-        expect(c.stepMs).toBeGreaterThan(band.stepMs);
-      } else {
-        expect(c.stepMs).toBe(band.stepMs);
+  it('the grid never shrinks and the path never gets shorter, even when the grid grows', () => {
+    for (const [a, b] of pairs) {
+      expect(b.size).toBeGreaterThanOrEqual(a.size);
+      expect(lengthFor(b.level)).toBeGreaterThanOrEqual(lengthFor(a.level));
+    }
+  });
+
+  it('crossings and the second firefly stay once they have arrived', () => {
+    for (const [a, b] of pairs) expect(features(b)).toBeGreaterThanOrEqual(features(a));
+  });
+
+  it('at the same length and kind of path, the path has at least as many turns', () => {
+    for (const [a, b] of pairs) {
+      if (lengthFor(a.level) === lengthFor(b.level) && features(a) === features(b)) {
+        expect(turns(b)).toBeGreaterThanOrEqual(turns(a));
       }
     }
+  });
+
+  it('a bigger grid never brings a simpler path', () => {
+    for (const [a, b] of pairs) {
+      if (b.size > a.size && features(a) === features(b)) expect(turns(b)).toBeGreaterThanOrEqual(turns(a));
+    }
+  });
+
+  it('level 1 is a gentle 3-tile straight line', () => {
+    expect(getLevel(1).path).toHaveLength(3);
+    expect(countTurns(getLevel(1).path, 3)).toBe(0);
+  });
+
+  it('every 10th level is a Boss', () => {
+    for (const c of allLevels) expect(c.boss).toBe(c.level % 10 === 0);
   });
 });
 
@@ -164,11 +192,13 @@ describe('picture cards', () => {
 });
 
 describe('rocks', () => {
-  it('come rarely, and only from level 21', () => {
+  it('only from level 21, rarely at first and more often later', () => {
     const rocky = allLevels.filter((c) => c.rocks.length > 0);
     expect(rocky.every((c) => c.level >= ROCKS_FROM)).toBe(true);
-    expect(rocky.length).toBeGreaterThan(20);
-    expect(rocky.length / (MAX_LEVEL - ROCKS_FROM + 1)).toBeLessThan(0.3);
+    const share = (from: number, to: number) => rocky.filter((c) => c.level >= from && c.level <= to).length / (to - from + 1);
+    expect(share(21, 120)).toBeLessThan(share(201, 300));
+    expect(rockChance(ROCKS_FROM)).toBeCloseTo(0.15);
+    expect(rockChance(MAX_LEVEL)).toBeCloseTo(0.45);
   });
 });
 
