@@ -1,6 +1,7 @@
 {
   "name": "firefly-path",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/baloo-2": "^0.4.2",

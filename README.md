@@ -71,3 +71,7 @@ The game uses three AdMob units: "Rewarded - bonuses", "Interstitial - unlocks" 
 - [x] 5. AdMob: consent and privacy options, the 3 units, interstitial rules, test IDs in development. Phase 6 connects the Remote Config rules, Firebase events and Remove Ads; phase 4 adds the 2× coins and streak-saver placements
 - [ ] 6. Extras
 - [ ] 7. Release
+
+## Licence
+
+Copyright © 2026 Sandipan Sarkar. All rights reserved. The code is public to read, but it may not be copied, reused or redistributed without written permission. See [LICENSE](LICENSE).
